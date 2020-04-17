@@ -1,0 +1,40 @@
+## MySQL架构
+
+分层，分成四层：连接层，服务层，引擎层，存储层
+
+![](E:\jupyter notebook\mysql1\pictures\MySQL架构.png)
+
+
+
+- 连接层
+
+连接客户端，有一个线程池，可以对连接的客户端进行SSL的安全连接，进行权限验证
+
+- 服务层
+
+提供SQL接口，对SQL语句进行解析和优化，在解析器内部有一个解析树对SQL进行解析，然后在优化查询器里会按照SQL自己的逻辑进行如执行顺序，是否使用索引等进行优化。如果是select语句，还会利用缓存，提高查询效率。服务层的解析，优化等都是组件，可以把优化组件拔除，提高执行效率
+
+- 引擎层
+
+是可插拔的，为不同的场景提供不同的存储引擎，存储引擎负责真正的数据存储和提取，最常用的两种是MyISAM和InnoDB
+
+- 存储层
+
+把数据存储在文件系统里，和存储引擎交互
+
+
+
+MySQL采用分层架构能方便查找故障，直接定位到某层
+
+查看存储引擎
+
+```sql
+show engines;
+
+show variables like 'storage_engines';
+```
+
+InnoDB和MyISAM的比较
+
+![](E:\jupyter notebook\mysql1\pictures\MyISAM和InnoDB比较.png)
+
