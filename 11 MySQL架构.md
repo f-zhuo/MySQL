@@ -2,7 +2,7 @@
 
 分层，分成四层：连接层，服务层，引擎层，存储层
 
-![](E:\jupyter notebook\mysql1\pictures\MySQL架构.png)
+![](https://github.com/f-zhuo/MySQL/blob/master/pictures/MySQL.png)
 
 
 
@@ -36,5 +36,5 @@ show variables like 'storage_engines';
 
 InnoDB和MyISAM的比较
 
-![](E:\jupyter notebook\mysql1\pictures\MyISAM和InnoDB比较.png)
+![](https://github.com/f-zhuo/MySQL/blob/master/pictures/MyISAM_VS_InnoDB.png)
 
