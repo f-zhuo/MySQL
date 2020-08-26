@@ -291,5 +291,5 @@ select * from t1 limit 10;
 
 **MySQL的执行顺序**
 
-from（笛卡尔积）-on（筛选外关联表）-join-where（保留主表）-group by -having-select-distinct-order by -limit
+from -on -join -where -group by -having -select -distinct -order by -limit
 
