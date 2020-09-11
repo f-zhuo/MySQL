@@ -1,4 +1,4 @@
-### DML
+# DML
 
 ```sql
 -- 插入数据，全列插入或指定列插入
@@ -11,7 +11,7 @@ insert into t1(c1,c2) select s1,s2 from t2;
 /*注意s1，s2数据类型分别和c1，c2一致*/
 ```
 
-**INSERT IGNORE INTO，INSERT INTO与replace into的区别**
+## INSERT IGNORE INTO，INSERT INTO与replace into
 
 设置了unique index/primary key时，在索引列插入重复数据时，INSERT IGNORE INTO会忽略待插入数据中数据库已存在的那部分，如果要插入的数据在数据库中已存在就跳过；如果数据库没有，就插入新的数据。这样就可以保留数据库中已经存在数据，达到在间隙中插入数据的目的；
 
@@ -30,7 +30,17 @@ delete from t1 where c1=18;
 
 where后面跟的是条件，起过滤作用
 
-#### 导出文件
+## delete、truncate、drop
+
+delete根据过滤条件删除内容，不删除表定义，不释放空间；
+
+truncate清空表，只删除内容，不删除表定义，释放空间；
+
+drop删除整个表内容和定义，释放空间
+
+# 导入导出
+
+## 导出文件
 
 *文件路径不能有中文*
 
@@ -46,7 +56,7 @@ set SQL_SAFE_UPDATES=1;
 show global variables like '%secure_file_priv%';
 ```
 
-#### 导入文件
+## 导入文件
 
 要先建表，再导入文件
 
@@ -76,4 +86,3 @@ into table score(stuId,
 fields terminated by ',' 
 lines terminated by '\r\n';
 ```
-
