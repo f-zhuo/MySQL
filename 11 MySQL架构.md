@@ -4,8 +4,6 @@
 
 ![](https://github.com/f-zhuo/MySQL/raw/master/pictures/MySQL.png)
 
-
-
 - 连接层
 
 连接客户端，有一个线程池，可以对连接的客户端进行SSL的安全连接，进行权限验证
@@ -23,7 +21,7 @@
 把数据存储在文件系统里，和存储引擎交互
 
 
-
+分层原因：
 MySQL采用分层架构能方便查找故障，直接定位到某层
 
 查看存储引擎
@@ -36,5 +34,13 @@ show variables like 'storage_engines';
 
 InnoDB和MyISAM的比较
 
-![](https://github.com/f-zhuo/MySQL/raw/master/pictures/MyISAM_VS_InnoDB.png)
-
+|  对比项  |       MyISAM       |             InnoDB             |
+| :------: | :----------------: | :----------------------------: |
+|  主外键  |       不支持       |              支持              |
+|   事务   |       不支持       |              支持              |
+| 全文索引 |        支持        |             不支持             |
+|    锁    | 表锁，不适合高并发 |      支持行锁，适合高并发      |
+|   关注   |        性能        |              事务              |
+|  表空间  |         小         |               大               |
+|   缓存   |     只缓存索引     | 缓存索引和数据，故对内存要求高 |
+| 适用语句 |       select       |         insert,update          |
