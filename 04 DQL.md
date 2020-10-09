@@ -38,11 +38,15 @@ where语句中and优先级高于or，可用小括号改变优先级
 
 所以，null不能用=判断，只能用is null/is not null
 
-**ifnull(a,b)**：若a为null，取值b，否则取值a
+all/any：满足全部/任意一个条件
 
 ```sql
-select ifnull(c1,c2) from t1;
+select * from score where score > all (select score from score where id=2 or id=1);
+
+select * from score where score > any (select score from score where id=2 or id=1);
 ```
+
+any中有null值还可以计算其他非null值，all不能有非null值
 
 除了使用where精确查询，还可以使用like/not like和通配符进行模糊查询
 
@@ -60,7 +64,7 @@ select * from t1 where c1 like 'Ja__';
 
 ### 正则
 
-MySQL也支持正则表达式，需要用regexp关键字
+MySQL也支持正则表达式，需要用regexp（regular expression）关键字
 
 ```sql
 select * from t1 where c1 regexp 'Ja';
@@ -109,6 +113,16 @@ select c1 from t1 order by c2 desc,c3;
 /*先按照c2降序排列，再按照c3升序排列，若对每个列都是降序输出，则每个列后都要跟上desc*/
 ```
 
+`a in (b,c)`的结果是0（a不在集合）或1（a在集合），所以可以使用in做排序，将集合里的排在最后/最前
+
+```sql
+-- 1984年的获奖者和奖项（按奖项和获奖者排序），但化学和物理要排在最后
+SELECT winner, subject
+FROM nobel
+WHERE yr=1984 
+order by subject IN ('Physics','Chemistry'),subject,winner
+```
+
 ## 聚合函数
 
 | 函数  |     含义     |
@@ -118,6 +132,12 @@ select c1 from t1 order by c2 desc,c3;
 |  max  | 非null最大值 |
 |  min  | 非null最小值 |
 |  avg  | 非null平均值 |
+
+* count(*)：对所有行计数，包括null，扫描全表
+* count(column)：对非null的column列计数，当column是主键，只扫描主键；当column是非主键，扫描全表
+* count(1)：和count(*)效果一样，但扫描主键
+
+无主键时，`count(1)`比`count(*)`快；有主键时，`count(主键)`比`count(*)`快；只有一个字段时`count(*)`最快
 
 ### 分组查询
 
@@ -131,7 +151,6 @@ SELECT year(pay_time) year,
 FROM t1
 GROUP BY year(pay_time),
          month(pay_time);
-
 ```
 
 ### with rollup
@@ -148,7 +167,6 @@ group by name,
 	     gender,
 	     age 
 with rollup;
-
 ```
 
 先按照name,gender,age进行分组，然后按照name,gender汇总统计，最后按照name汇总统计
@@ -174,6 +192,20 @@ select coalesce(name,'总数'),
 	   age,
 	   count(*) 
 from t1 group by name with rollup;
+```
+
+**ifnull(a,b)**：若a为null，取值b，否则取值a，相当于简化版的coalesce
+
+```sql
+select ifnull(c1,c2) from t1;
+```
+
+nullif(x,y)：若x=y，则结果为null，否则为x
+
+## 数据类型变换
+
+```mysql
+select cast('1' as int) num;
 ```
 
 ## 行列互换
@@ -208,6 +240,7 @@ select userid,
 	   sum(case subject when 'shuxue' then score else 0 end) shuxue
 from score
 group by userid;
+
 ```
 
 经过行转列的表：
@@ -227,6 +260,7 @@ select userid,
 	   sum(if(subject='yuwen',score, 0)) yuwen,
 	   sum(if(subject='shuxue',score, 0)) shuxue 
 from score group by userid;
+
 ```
 
 ### 列转行
@@ -245,6 +279,7 @@ select userid,
 	   shuxue as score,
 	   'shuxue' as subject 
 from score1;
+
 ```
 
 列转行：
@@ -259,6 +294,7 @@ MySQL中字符串不允许用+连接，只能使用concat，若concat连接的�
 
 ```sql
 select userid,concat(score,subject) ss from score;
+
 ```
 
 ![](.\pictures\DQL_example3.1.jpg)
@@ -269,6 +305,7 @@ select userid,concat(score,subject) ss from score;
 
 ```sql
 select userid,concat_ws('%',score,subject) ss from score;
+
 ```
 
 ![](.\pictures\DQL_example3.2.jpg)
@@ -282,6 +319,7 @@ select userid,
 	   group_concat(subject) subject 
 from score 
 group by userid; //直接分组连接，不指定分隔符，默认‘,’
+
 ```
 
 ![](.\pictures\DQL_example2.1.jpg)
@@ -298,7 +336,7 @@ group by userid;//指定分隔符
 
 ```sql
 select userid,
-	   group_concat(subject ,'%') subject 
+	   group_concat(subject,'%') subject 
 from score 
 group by userid; //指定多字段连接，可以是自定义的字段
 
@@ -308,7 +346,7 @@ group by userid; //指定多字段连接，可以是自定义的字段
 
 ```sql
 select userid,
-       group_concat(subject ,'%',score) subject 
+       group_concat(subject,'%',score) subject 
 from score 
 group by userid; //3个字段连接
 
@@ -318,7 +356,7 @@ group by userid; //3个字段连接
 
 ```sql
 select userid,
-	   group_concat(subject ,'%',score separator '//') subject 
+	   group_concat(subject,'%',score separator '//') subject 
 from score 
 group by userid; //指定分隔符的多字段连接
 
@@ -351,6 +389,52 @@ select userid,
 	   group_concat(distinct score) score 
 from score 
 group by userid; //去重
+
+```
+
+## 字符串函数
+
+### substring()
+
+```sql
+select substring('abcde',3,3);
+select substring('abcde',3);
+
+```
+
+### length()
+
+```sql
+select length('abcde');
+
+```
+
+### replace()
+
+```sql
+select replace('abcde','c','d')
+
+```
+
+### instr()
+
+```mysql
+select instr('abcde','cd')
+
+```
+
+## round()
+
+ 显示欧洲的国家name和每个国家的人口population，以和德国的人口占比形式显示
+
+```mysql
+select name,
+concat(round(population/(select population
+from world
+where name = 'Germany')*100,0),'%') population
+from world
+where continent = 'Europe';
+// round 保留小数位数是固定的，round(xxx,2)*100是两位小数，round(xxx*100,0)是整数
 
 ```
 
@@ -461,6 +545,8 @@ select * from t1 limit 10,20; //从11到30行
 select * from t1 limit 20,-1; //从21到最后一行
 
 ```
+
+*limit后是不允许接表达式的，比如limit n-1就是非法的*
 
 ## 随机查询
 
